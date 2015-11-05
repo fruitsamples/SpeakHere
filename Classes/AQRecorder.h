@@ -1,7 +1,7 @@
 /*
  
-    File: SpeakHereAppDelegate.h
-Abstract: Application delegate for SpeakHere
+    File: AQRecorder.h
+Abstract: Helper class for recording audio files via the AudioQueue
  Version: 2.0
 
 Disclaimer: IMPORTANT:  This Apple software is supplied to you by Apple
@@ -47,17 +47,49 @@ Copyright (C) 2009 Apple Inc. All Rights Reserved.
  
 */
 
-#import <UIKit/UIKit.h>
+#include <AudioToolbox/AudioToolbox.h>
+#include <Foundation/Foundation.h>
+#include <libkern/OSAtomic.h>
 
-@class SpeakHereViewController;
+#include "CAStreamBasicDescription.h"
+#include "CAXException.h"
 
-@interface SpeakHereAppDelegate : NSObject <UIApplicationDelegate> {
-    UIWindow *window;
-    SpeakHereViewController *viewController;
-}
+#define kNumberRecordBuffers	3
 
-@property (nonatomic, retain) IBOutlet UIWindow *window;
-@property (nonatomic, retain) IBOutlet SpeakHereViewController *viewController;
+class AQRecorder 
+	{
+	public:
+		AQRecorder();
+		~AQRecorder();
+		
+		UInt32						GetNumberChannels() const	{ return mRecordFormat.NumberChannels(); }
+		CFStringRef					GetFileName() const			{ return mFileName; }
+		AudioQueueRef				Queue() const				{ return mQueue; }
+		CAStreamBasicDescription	DataFormat() const			{ return mRecordFormat; }
+		
+		void			StartRecord(CFStringRef inRecordFile);
+		void			StopRecord();		
+		Boolean			IsRunning() const			{ return mIsRunning; }
+		
+		UInt64			startTime;
+				
+	private:
+		void						CopyEncoderCookieToFile();
+		CAStreamBasicDescription	SetupAudioFormat(UInt32 inFormatID);
+		int							ComputeRecordBufferSize(const AudioStreamBasicDescription *format, float seconds);
 
-@end
+		CFStringRef					mFileName;
+		AudioQueueRef				mQueue;
+		AudioQueueBufferRef			mBuffers[kNumberRecordBuffers];
+		AudioFileID					mRecordFile;
+		SInt64						mRecordPacket; // current packet number in record file
+		CAStreamBasicDescription	mRecordFormat;
+		Boolean						mIsRunning;
 
+		static void MyInputBufferHandler(	void *								inUserData,
+											AudioQueueRef						inAQ,
+											AudioQueueBufferRef					inBuffer,
+											const AudioTimeStamp *				inStartTime,
+											UInt32								inNumPackets,
+											const AudioStreamPacketDescription*	inPacketDesc);
+	};

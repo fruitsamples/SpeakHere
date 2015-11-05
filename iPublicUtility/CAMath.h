@@ -1,7 +1,7 @@
 /*
  
-    File: SpeakHereAppDelegate.h
-Abstract: Application delegate for SpeakHere
+    File: CAMath.h
+Abstract: Helper class for various math functions
  Version: 2.0
 
 Disclaimer: IMPORTANT:  This Apple software is supplied to you by Apple
@@ -44,20 +44,28 @@ POSSIBILITY OF SUCH DAMAGE.
 
 Copyright (C) 2009 Apple Inc. All Rights Reserved.
 
- 
+  
 */
 
-#import <UIKit/UIKit.h>
+#ifndef __CAMath_h__
+#define __CAMath_h__
 
-@class SpeakHereViewController;
+#if !defined(__COREAUDIO_USE_FLAT_INCLUDES__)
+	#include <CoreAudio/CoreAudioTypes.h>
+#else
+	#include <CoreAudioTypes.h>
+#endif
 
-@interface SpeakHereAppDelegate : NSObject <UIApplicationDelegate> {
-    UIWindow *window;
-    SpeakHereViewController *viewController;
-}
+inline bool fiszero(Float64 f) { return (f == 0.); }
+inline bool fiszero(Float32 f) { return (f == 0.f); }
 
-@property (nonatomic, retain) IBOutlet UIWindow *window;
-@property (nonatomic, retain) IBOutlet SpeakHereViewController *viewController;
+inline bool fnonzero(Float64 f) { return !fiszero(f); }
+inline bool fnonzero(Float32 f) { return !fiszero(f); }
 
-@end
+inline bool fequal(const Float64 &a, const Float64 &b) { return a == b; }
+inline bool fequal(const Float32 &a, const Float32 &b) { return a == b; }
 
+inline bool fnotequal(const Float64 &a, const Float64 &b) { return !fequal(a, b); }
+inline bool fnotequal(const Float32 &a, const Float32 &b) { return !fequal(a, b); }
+
+#endif // __CAMath_h__

@@ -1,7 +1,7 @@
 /*
  
-    File: SpeakHereAppDelegate.h
-Abstract: Application delegate for SpeakHere
+    File: CADebugMacros.cpp
+Abstract: Helper class for printing debug messages
  Version: 2.0
 
 Disclaimer: IMPORTANT:  This Apple software is supplied to you by Apple
@@ -47,17 +47,45 @@ Copyright (C) 2009 Apple Inc. All Rights Reserved.
  
 */
 
-#import <UIKit/UIKit.h>
+#include "CADebugMacros.h"
+#include <stdio.h>
+#include <stdarg.h>
+#if TARGET_API_MAC_OSX
+	#include <syslog.h>
+#endif
 
-@class SpeakHereViewController;
+#if DEBUG
+#include <stdio.h>
 
-@interface SpeakHereAppDelegate : NSObject <UIApplicationDelegate> {
-    UIWindow *window;
-    SpeakHereViewController *viewController;
+void	DebugPrint(const char *fmt, ...)
+{
+	va_list args;
+	va_start(args, fmt);
+	vprintf(fmt, args);
+	va_end(args);
+}
+#endif // DEBUG
+
+#if TARGET_API_MAC_OSX
+void	LogError(const char *fmt, ...)
+{
+	va_list args;
+	va_start(args, fmt);
+#if DEBUG
+	vprintf(fmt, args);
+#endif
+	vsyslog(LOG_ERR, fmt, args);
+	va_end(args);
 }
 
-@property (nonatomic, retain) IBOutlet UIWindow *window;
-@property (nonatomic, retain) IBOutlet SpeakHereViewController *viewController;
-
-@end
-
+void	LogWarning(const char *fmt, ...)
+{
+	va_list args;
+	va_start(args, fmt);
+#if DEBUG
+	vprintf(fmt, args);
+#endif
+	vsyslog(LOG_WARNING, fmt, args);
+	va_end(args);
+}
+#endif

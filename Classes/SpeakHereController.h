@@ -1,7 +1,7 @@
 /*
  
-    File: SpeakHereAppDelegate.h
-Abstract: Application delegate for SpeakHere
+    File: SpeakHereController.h
+Abstract: Class for handling user interaction and file record/playback
  Version: 2.0
 
 Disclaimer: IMPORTANT:  This Apple software is supplied to you by Apple
@@ -47,17 +47,37 @@ Copyright (C) 2009 Apple Inc. All Rights Reserved.
  
 */
 
-#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
 
-@class SpeakHereViewController;
+#import "AQLevelMeter.h"
 
-@interface SpeakHereAppDelegate : NSObject <UIApplicationDelegate> {
-    UIWindow *window;
-    SpeakHereViewController *viewController;
+#import "AQPlayer.h"
+#import "AQRecorder.h"
+
+
+@interface SpeakHereController : NSObject {
+
+	IBOutlet UIBarButtonItem*	btn_record;
+	IBOutlet UIBarButtonItem*	btn_play;
+	IBOutlet UILabel*			fileDescription;
+	IBOutlet AQLevelMeter*		lvlMeter_in;
+
+	AQPlayer*					player;
+	AQRecorder*					recorder;
+	BOOL						playbackWasInterrupted;
+	CFStringRef					recordFilePath;	
 }
 
-@property (nonatomic, retain) IBOutlet UIWindow *window;
-@property (nonatomic, retain) IBOutlet SpeakHereViewController *viewController;
+@property (nonatomic, retain)	UIBarButtonItem		*btn_record;
+@property (nonatomic, retain)	UIBarButtonItem		*btn_play;
+@property (nonatomic, retain)	UILabel				*fileDescription;
+@property (nonatomic, retain)	AQLevelMeter		*lvlMeter_in;
+
+@property (readonly)			AQPlayer			*player;
+@property (readonly)			AQRecorder			*recorder;
+@property						BOOL				playbackWasInterrupted;
+
+- (IBAction)record: (id) sender;
+- (IBAction)play: (id) sender;
 
 @end
-

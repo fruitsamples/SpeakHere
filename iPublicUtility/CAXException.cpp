@@ -1,7 +1,7 @@
 /*
  
-    File: SpeakHereAppDelegate.h
-Abstract: Application delegate for SpeakHere
+    File: CAXException.cpp
+Abstract: Helper class for exception handling
  Version: 2.0
 
 Disclaimer: IMPORTANT:  This Apple software is supplied to you by Apple
@@ -47,17 +47,7 @@ Copyright (C) 2009 Apple Inc. All Rights Reserved.
  
 */
 
-#import <UIKit/UIKit.h>
 
-@class SpeakHereViewController;
+#include "CAXException.h"
 
-@interface SpeakHereAppDelegate : NSObject <UIApplicationDelegate> {
-    UIWindow *window;
-    SpeakHereViewController *viewController;
-}
-
-@property (nonatomic, retain) IBOutlet UIWindow *window;
-@property (nonatomic, retain) IBOutlet SpeakHereViewController *viewController;
-
-@end
-
+CAXException::WarningHandler CAXException::sWarningHandler = NULL;

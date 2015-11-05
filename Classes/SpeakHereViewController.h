@@ -1,7 +1,7 @@
 /*
  
-    File: SpeakHereAppDelegate.h
-Abstract: Application delegate for SpeakHere
+    File: SpeakHereViewController.h
+Abstract: View controller for the SpeakHere application
  Version: 2.0
 
 Disclaimer: IMPORTANT:  This Apple software is supplied to you by Apple
@@ -49,15 +49,12 @@ Copyright (C) 2009 Apple Inc. All Rights Reserved.
 
 #import <UIKit/UIKit.h>
 
-@class SpeakHereViewController;
+@class SpeakHereController;
 
-@interface SpeakHereAppDelegate : NSObject <UIApplicationDelegate> {
-    UIWindow *window;
-    SpeakHereViewController *viewController;
+@interface SpeakHereViewController : UIViewController {
+
+	IBOutlet SpeakHereController *controller;
 }
-
-@property (nonatomic, retain) IBOutlet UIWindow *window;
-@property (nonatomic, retain) IBOutlet SpeakHereViewController *viewController;
 
 @end
 

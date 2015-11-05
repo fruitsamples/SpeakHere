@@ -1,7 +1,7 @@
 /*
- 
-    File: SpeakHereAppDelegate.h
-Abstract: Application delegate for SpeakHere
+
+    File: MeterTable.cpp
+Abstract: Class for handling conversion from linear scale to dB
  Version: 2.0
 
 Disclaimer: IMPORTANT:  This Apple software is supplied to you by Apple
@@ -47,17 +47,40 @@ Copyright (C) 2009 Apple Inc. All Rights Reserved.
  
 */
 
-#import <UIKit/UIKit.h>
+#include "MeterTable.h"
 
-@class SpeakHereViewController;
-
-@interface SpeakHereAppDelegate : NSObject <UIApplicationDelegate> {
-    UIWindow *window;
-    SpeakHereViewController *viewController;
+inline double DbToAmp(double inDb)
+{
+	return pow(10., 0.05 * inDb);
 }
 
-@property (nonatomic, retain) IBOutlet UIWindow *window;
-@property (nonatomic, retain) IBOutlet SpeakHereViewController *viewController;
+MeterTable::MeterTable(float inMinDecibels, size_t inTableSize, float inRoot)
+	: mMinDecibels(inMinDecibels),
+	mDecibelResolution(mMinDecibels / (inTableSize - 1)), 
+	mScaleFactor(1. / mDecibelResolution)
+{
+	if (inMinDecibels >= 0.)
+	{
+		printf("MeterTable inMinDecibels must be negative");
+		return;
+	}
 
-@end
+	mTable = (float*)malloc(inTableSize*sizeof(float));
 
+	double minAmp = DbToAmp(inMinDecibels);
+	double ampRange = 1. - minAmp;
+	double invAmpRange = 1. / ampRange;
+	
+	double rroot = 1. / inRoot;
+	for (size_t i = 0; i < inTableSize; ++i) {
+		double decibels = i * mDecibelResolution;
+		double amp = DbToAmp(decibels);
+		double adjAmp = (amp - minAmp) * invAmpRange;
+		mTable[i] = pow(adjAmp, rroot);
+	}
+}
+
+MeterTable::~MeterTable()
+{
+	free(mTable);
+}

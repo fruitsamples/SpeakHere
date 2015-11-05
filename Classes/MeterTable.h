@@ -1,7 +1,7 @@
 /*
- 
-    File: SpeakHereAppDelegate.h
-Abstract: Application delegate for SpeakHere
+
+    File: MeterTable.h
+Abstract: Class for handling conversion from linear scale to dB
  Version: 2.0
 
 Disclaimer: IMPORTANT:  This Apple software is supplied to you by Apple
@@ -46,18 +46,34 @@ Copyright (C) 2009 Apple Inc. All Rights Reserved.
 
  
 */
+ 
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
 
-#import <UIKit/UIKit.h>
+class MeterTable
+{
+public:
+// MeterTable constructor arguments: 
+// inNumUISteps - the number of steps in the UI element that will be drawn. 
+//					This could be a height in pixels or number of bars in an LED style display.
+// inTableSize - The size of the table. The table needs to be large enough that there are no large gaps in the response.
+// inMinDecibels - the decibel value of the minimum displayed amplitude.
+// inRoot - this controls the curvature of the response. 2.0 is square root, 3.0 is cube root. But inRoot doesn't have to be integer valued, it could be 1.8 or 2.5, etc.
 
-@class SpeakHereViewController;
-
-@interface SpeakHereAppDelegate : NSObject <UIApplicationDelegate> {
-    UIWindow *window;
-    SpeakHereViewController *viewController;
-}
-
-@property (nonatomic, retain) IBOutlet UIWindow *window;
-@property (nonatomic, retain) IBOutlet SpeakHereViewController *viewController;
-
-@end
-
+MeterTable(float inMinDecibels = -80., size_t inTableSize = 400, float inRoot = 2.0);	
+~MeterTable();
+	
+	float ValueAt(float inDecibels)
+	{
+		if (inDecibels < mMinDecibels) return  0.;
+		if (inDecibels >= 0.) return 1.;
+		int index = (int)(inDecibels * mScaleFactor);
+		return mTable[index];
+	}
+private:
+	float	mMinDecibels;
+	float	mDecibelResolution;
+	float	mScaleFactor;
+	float	*mTable;
+};

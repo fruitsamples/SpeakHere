@@ -1,7 +1,7 @@
 /*
- 
-    File: SpeakHereAppDelegate.h
-Abstract: Application delegate for SpeakHere
+
+    File: GLLevelMeter.h
+Abstract: dB meter class for displaying audio power levels using OpenGL
  Version: 2.0
 
 Disclaimer: IMPORTANT:  This Apple software is supplied to you by Apple
@@ -44,20 +44,22 @@ POSSIBILITY OF SUCH DAMAGE.
 
 Copyright (C) 2009 Apple Inc. All Rights Reserved.
 
- 
+
 */
 
+
 #import <UIKit/UIKit.h>
+#import <OpenGLES/EAGL.h>
+#import <OpenGLES/ES1/gl.h>
+#import <OpenGLES/ES1/glext.h>
 
-@class SpeakHereViewController;
+#import "LevelMeter.h"
 
-@interface SpeakHereAppDelegate : NSObject <UIApplicationDelegate> {
-    UIWindow *window;
-    SpeakHereViewController *viewController;
+@interface GLLevelMeter : LevelMeter {
+	GLint						_backingWidth;
+	GLint						_backingHeight;
+	EAGLContext					*_context;
+	GLuint						_viewRenderbuffer, _viewFramebuffer;
 }
 
-@property (nonatomic, retain) IBOutlet UIWindow *window;
-@property (nonatomic, retain) IBOutlet SpeakHereViewController *viewController;
-
 @end
-
