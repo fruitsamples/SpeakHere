@@ -2,7 +2,7 @@
  
     File: AQPlayer.h
 Abstract: Helper class for playing audio files via the AudioQueue
- Version: 2.0
+ Version: 2.4
 
 Disclaimer: IMPORTANT:  This Apple software is supplied to you by Apple
 Inc. ("Apple") in consideration of your agreement to the following
@@ -60,8 +60,9 @@ class AQPlayer
 		AQPlayer();
 		~AQPlayer();
 
-		OSStatus						StartQueue(Boolean inResume);
+		OSStatus						StartQueue(BOOL inResume);
 		OSStatus						StopQueue();		
+		OSStatus						PauseQueue();
 		
 		AudioQueueRef					Queue()					{ return mQueue; }
 		CAStreamBasicDescription		DataFormat() const		{ return mDataFormat; }		

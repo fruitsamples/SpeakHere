@@ -2,7 +2,7 @@
 
     File: GLLevelMeter.m
 Abstract: dB meter class for displaying audio power levels using OpenGL
- Version: 2.0
+ Version: 2.4
 
 Disclaimer: IMPORTANT:  This Apple software is supplied to you by Apple
 Inc. ("Apple") in consideration of your agreement to the following

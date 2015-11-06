@@ -66,10 +66,20 @@ SpeakHereAppDelegate.m
 
 The SpeakHereAppDelegate class defines the application delegate object, responsible for instantiating the application's view.
 
-CALevelMeter.h
-CALevelMeter.mm
+SpeakHereController.h
+SpeakHereController.m
 
-The CALevelMeter class defines the level meter view for the applcation, displaying the metering data from an AVAudioPlayer object
+The SpeakHereController class manages the application state and handles notifications from the audio system
+
+SpeakHereViewController.h
+SpeakHereViewController.m
+
+The SpeakHereViewController class acts as the applcation's view controller
+
+AQLevelMeter.h
+AQLevelMeter.mm
+
+The AQLevelMeter class defines the level meter view for the applcation, displaying the metering data from an AudioQueue object
 
 LevelMeter.h
 LevelMeter.m
@@ -80,11 +90,6 @@ GLLevelMeter.h
 GLLevelMeter.m
 
 GLLevelMeter is a subclass of LevelMeter that uses OpenGL for drawing
-
-AudioQueueObject.h
-AudioQueueObject.m
-
-The AudioQueueObject class defines a superclass for playback and recording objects, encapsulating the state and behavior that is common to both.
 
 AQRecorder.h
 AQRecorder.m

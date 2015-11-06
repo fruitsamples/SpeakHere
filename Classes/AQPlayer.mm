@@ -2,7 +2,7 @@
  
     File: AQPlayer.mm
 Abstract: n/a
- Version: 2.0
+ Version: 2.4
 
 Disclaimer: IMPORTANT:  This Apple software is supplied to you by Apple
 Inc. ("Apple") in consideration of your agreement to the following
@@ -143,18 +143,11 @@ AQPlayer::~AQPlayer()
 	DisposeQueue(true);
 }
 
-OSStatus AQPlayer::StartQueue(Boolean inResume)
+OSStatus AQPlayer::StartQueue(BOOL inResume)
 {	
 	// if we have a file but no queue, create one now
 	if ((mQueue == NULL) && (mFilePath != NULL))
 		CreateQueueForFile(mFilePath);
-		
-	UInt32 category = kAudioSessionCategory_MediaPlayback;
-	OSStatus result = AudioSessionSetProperty(kAudioSessionProperty_AudioCategory, sizeof(category), &category);
-	if (result) printf("ERROR SETTING AUDIO CATEGORY!\n");
-	
-	result = AudioSessionSetActive(true);
-	if (result) printf("ERROR SETTING AUDIO SESSION ACTIVE!\n");
 	
 	mIsDone = false;
 	
@@ -173,11 +166,14 @@ OSStatus AQPlayer::StopQueue()
 {
 	OSStatus result = AudioQueueStop(mQueue, true);
 	if (result) printf("ERROR STOPPING QUEUE!\n");
-	else
-	{
-		result = AudioSessionSetActive(false);
-		if (result) printf("ERROR SETTING AUDIO SESSION INACTIVE!\n");
-	}
+
+	return result;
+}
+
+OSStatus AQPlayer::PauseQueue()
+{
+	OSStatus result = AudioQueuePause(mQueue);
+
 	return result;
 }
 

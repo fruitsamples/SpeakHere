@@ -2,7 +2,7 @@
  
     File: SpeakHereController.h
 Abstract: Class for handling user interaction and file record/playback
- Version: 2.0
+ Version: 2.4
 
 Disclaimer: IMPORTANT:  This Apple software is supplied to you by Apple
 Inc. ("Apple") in consideration of your agreement to the following
@@ -65,6 +65,8 @@ Copyright (C) 2009 Apple Inc. All Rights Reserved.
 	AQPlayer*					player;
 	AQRecorder*					recorder;
 	BOOL						playbackWasInterrupted;
+	BOOL						playbackWasPaused;
+	
 	CFStringRef					recordFilePath;	
 }
 

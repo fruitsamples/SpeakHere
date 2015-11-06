@@ -2,7 +2,7 @@
  
     File: AQRecorder.h
 Abstract: Helper class for recording audio files via the AudioQueue
- Version: 2.0
+ Version: 2.4
 
 Disclaimer: IMPORTANT:  This Apple software is supplied to you by Apple
 Inc. ("Apple") in consideration of your agreement to the following
@@ -74,10 +74,6 @@ class AQRecorder
 		UInt64			startTime;
 				
 	private:
-		void						CopyEncoderCookieToFile();
-		CAStreamBasicDescription	SetupAudioFormat(UInt32 inFormatID);
-		int							ComputeRecordBufferSize(const AudioStreamBasicDescription *format, float seconds);
-
 		CFStringRef					mFileName;
 		AudioQueueRef				mQueue;
 		AudioQueueBufferRef			mBuffers[kNumberRecordBuffers];
@@ -85,6 +81,10 @@ class AQRecorder
 		SInt64						mRecordPacket; // current packet number in record file
 		CAStreamBasicDescription	mRecordFormat;
 		Boolean						mIsRunning;
+
+		void			CopyEncoderCookieToFile();
+		void			SetupAudioFormat(UInt32 inFormatID);
+		int				ComputeRecordBufferSize(const AudioStreamBasicDescription *format, float seconds);
 
 		static void MyInputBufferHandler(	void *								inUserData,
 											AudioQueueRef						inAQ,

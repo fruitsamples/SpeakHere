@@ -2,7 +2,7 @@
  
     File: AQRecorder.mm
 Abstract: n/a
- Version: 2.0
+ Version: 2.4
 
 Disclaimer: IMPORTANT:  This Apple software is supplied to you by Apple
 Inc. ("Apple") in consideration of your agreement to the following
@@ -154,31 +154,29 @@ void AQRecorder::CopyEncoderCookieToFile()
 	}
 }
 
-CAStreamBasicDescription AQRecorder::SetupAudioFormat(UInt32 inFormatID)
+void AQRecorder::SetupAudioFormat(UInt32 inFormatID)
 {
-	CAStreamBasicDescription recordFormat;
+	memset(&mRecordFormat, 0, sizeof(mRecordFormat));
 
-	memset(&mRecordFormat, 0, sizeof(recordFormat));
-	UInt32 size = sizeof(recordFormat.mSampleRate);
+	UInt32 size = sizeof(mRecordFormat.mSampleRate);
 	XThrowIfError(AudioSessionGetProperty(	kAudioSessionProperty_CurrentHardwareSampleRate,
 										&size, 
-										&recordFormat.mSampleRate), "couldn't get hardware sample rate");
-	size = sizeof(recordFormat.mChannelsPerFrame);
+										&mRecordFormat.mSampleRate), "couldn't get hardware sample rate");
+
+	size = sizeof(mRecordFormat.mChannelsPerFrame);
 	XThrowIfError(AudioSessionGetProperty(	kAudioSessionProperty_CurrentHardwareInputNumberChannels, 
 										&size, 
-										&recordFormat.mChannelsPerFrame), "couldn't get input channel count");
+										&mRecordFormat.mChannelsPerFrame), "couldn't get input channel count");
 			
-	recordFormat.mFormatID = inFormatID;
+	mRecordFormat.mFormatID = inFormatID;
 	if (inFormatID == kAudioFormatLinearPCM)
 	{
 		// if we want pcm, default to signed 16-bit little-endian
-		recordFormat.mFormatFlags = kLinearPCMFormatFlagIsSignedInteger | kLinearPCMFormatFlagIsPacked;
-		recordFormat.mBitsPerChannel = 16;
-		recordFormat.mBytesPerPacket = recordFormat.mBytesPerFrame = (recordFormat.mBitsPerChannel / 8) * recordFormat.mChannelsPerFrame;
-		recordFormat.mFramesPerPacket = 1;
+		mRecordFormat.mFormatFlags = kLinearPCMFormatFlagIsSignedInteger | kLinearPCMFormatFlagIsPacked;
+		mRecordFormat.mBitsPerChannel = 16;
+		mRecordFormat.mBytesPerPacket = mRecordFormat.mBytesPerFrame = (mRecordFormat.mBitsPerChannel / 8) * mRecordFormat.mChannelsPerFrame;
+		mRecordFormat.mFramesPerPacket = 1;
 	}
-
-	return recordFormat;
 }
 
 void AQRecorder::StartRecord(CFStringRef inRecordFile)
@@ -187,16 +185,11 @@ void AQRecorder::StartRecord(CFStringRef inRecordFile)
 	UInt32 size;
 	CFURLRef url;
 	
-	try {
-		UInt32 category = kAudioSessionCategory_RecordAudio;	
-		XThrowIfError(AudioSessionSetProperty(kAudioSessionProperty_AudioCategory, sizeof(category), &category), "couldn't set audio category!");
-		
-		XThrowIfError(AudioSessionSetActive(true), "AudioSessionSetActive (true) failed");
-		
+	try {		
 		mFileName = CFStringCreateCopy(kCFAllocatorDefault, inRecordFile);
 
 		// specify the recording format
-		mRecordFormat = SetupAudioFormat(kAudioFormatLinearPCM);
+		SetupAudioFormat(kAudioFormatLinearPCM);
 		
 		// create the queue
 		XThrowIfError(AudioQueueNewInput(
@@ -263,6 +256,4 @@ void AQRecorder::StopRecord()
 	}
 	AudioQueueDispose(mQueue, true);
 	AudioFileClose(mRecordFile);
-	XThrowIfError(AudioSessionSetActive(false), "AudioSessionSetActive (false) failed");
-
 }

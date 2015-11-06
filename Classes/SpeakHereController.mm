@@ -3,7 +3,7 @@
 
     File: SpeakHereController.mm
 Abstract: n/a
- Version: 2.0
+ Version: 2.4
 
 Disclaimer: IMPORTANT:  This Apple software is supplied to you by Apple
 Inc. ("Apple") in consideration of your agreement to the following
@@ -49,7 +49,6 @@ Copyright (C) 2009 Apple Inc. All Rights Reserved.
 */
 
 #import "SpeakHereController.h"
-
 
 @implementation SpeakHereController
 
@@ -97,6 +96,12 @@ char *OSTypeToStr(char *buf, OSType t)
 	btn_record.enabled = YES;
 }
 
+-(void)pausePlayQueue
+{
+	player->PauseQueue();
+	playbackWasPaused = YES;
+}
+
 - (void)stopRecord
 {
 	// Disconnect our level meter from the audio queue
@@ -119,8 +124,15 @@ char *OSTypeToStr(char *buf, OSType t)
 - (IBAction)play:(id)sender
 {
 	if (player->IsRunning())
-		[self stopPlayQueue];
-	
+	{
+		if (playbackWasPaused) {
+			OSStatus result = player->StartQueue(true);
+			if (result == noErr)
+				[[NSNotificationCenter defaultCenter] postNotificationName:@"playbackQueueResumed" object:self];
+		}
+		else
+			[self stopPlayQueue];
+	}
 	else
 	{		
 		OSStatus result = player->StartQueue(false);
@@ -163,14 +175,13 @@ void interruptionListener(	void *	inClientData,
 			[THIS stopRecord];
 		}
 		else if (THIS->player->IsRunning()) {
-			//the queue will stop itself on an interruption, we just need to update the AI
+			//the queue will stop itself on an interruption, we just need to update the UI
 			[[NSNotificationCenter defaultCenter] postNotificationName:@"playbackQueueStopped" object:THIS];
 			THIS->playbackWasInterrupted = YES;
 		}
 	}
 	else if ((inInterruptionState == kAudioSessionEndInterruption) && THIS->playbackWasInterrupted)
 	{
-		printf("Resuming queue\n");
 		// we were playing back when we were interrupted, so reset and resume now
 		THIS->player->StartQueue(true);
 		[[NSNotificationCenter defaultCenter] postNotificationName:@"playbackQueueResumed" object:THIS];
@@ -215,7 +226,8 @@ void propListener(	void *                  inClientData,
 			if (reasonVal == kAudioSessionRouteChangeReason_OldDeviceUnavailable)
 			{			
 				if (THIS->player->IsRunning()) {
-					[THIS stopPlayQueue];
+					[THIS pausePlayQueue];
+					[[NSNotificationCenter defaultCenter] postNotificationName:@"playbackQueueStopped" object:THIS];
 				}		
 			}
 
@@ -245,7 +257,11 @@ void propListener(	void *                  inClientData,
 	OSStatus error = AudioSessionInitialize(NULL, NULL, interruptionListener, self);
 	if (error) printf("ERROR INITIALIZING AUDIO SESSION! %d\n", error);
 	else 
-	{										
+	{
+		UInt32 category = kAudioSessionCategory_PlayAndRecord;	
+		error = AudioSessionSetProperty(kAudioSessionProperty_AudioCategory, sizeof(category), &category);
+		if (error) printf("couldn't set audio category!");
+									
 		error = AudioSessionAddPropertyListener(kAudioSessionProperty_AudioRouteChange, propListener, self);
 		if (error) printf("ERROR ADDING AUDIO SESSION PROP LISTENER! %d\n", error);
 		UInt32 inputAvailable = 0;
@@ -259,6 +275,9 @@ void propListener(	void *                  inClientData,
 		// we also need to listen to see if input availability changes
 		error = AudioSessionAddPropertyListener(kAudioSessionProperty_AudioInputAvailable, propListener, self);
 		if (error) printf("ERROR ADDING AUDIO SESSION PROP LISTENER! %d\n", error);
+
+		error = AudioSessionSetActive(true); 
+		if (error) printf("AudioSessionSetActive (true) failed");
 	}
 	
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(playbackQueueStopped:) name:@"playbackQueueStopped" object:nil];
@@ -272,6 +291,7 @@ void propListener(	void *                  inClientData,
 	// disable the play button since we have no recording to play yet
 	btn_play.enabled = NO;
 	playbackWasInterrupted = NO;
+	playbackWasPaused = NO;
 }
 
 # pragma mark Notification routines
